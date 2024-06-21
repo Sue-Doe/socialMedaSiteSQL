@@ -4,10 +4,9 @@ import json
 
 
 def loadConfig():
-    with open('../config.json','r') as file:
+    with open('config.json','r') as file:
         config = json.load(file)
         return config
-
 
 
 def connectToServer():
@@ -21,19 +20,18 @@ def connectToServer():
     )
 
     retry_attempts = 3
+    connection = None
     for attempt in range(retry_attempts):
         try:
             connection = pyodbc.connect(connection_string)
-            cursor = connection.cursor()
-            cursor.execute("SELECT * FROM USERS")
-            row = cursor.fetchone()
-            while row:
-                print(row)
-                row = cursor.fetchone()
-            connection.close()
+            print(f"Connection successful on attempt {attempt + 1}")
             break
         except pyodbc.Error as ex:
             print(f"Attempt {attempt + 1} failed: {ex}")
             if attempt < retry_attempts - 1:
-                time.sleep(5)  # Wait for 5 seconds before retrying
+                time.sleep(5) 
+            else:
+                print("Failed to connect to server")
+                raise
     return connection
+
