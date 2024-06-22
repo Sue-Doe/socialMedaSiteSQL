@@ -1,39 +1,25 @@
-import pyodbc
-import time
-import json
+from connection.connection import connectToServer
 
+def runUserCreation():
+    print("Starting tests")
+    
+    # Establish the connection
+    connection = connectToServer()
+    
+    try:
+        # Create a cursor object
+        cursor = connection.cursor()
+        cursor.execute("""
+            INSERT INTO users (first_name, last_name, birth_date, join_date, role)
+            VALUES ('cletus', 'ella', '1974-09-14', '2024-06-24', 'user');
+        """)
+    
+        connection.commit()
+    
+    except Exception as e:
+        print("An error occurred:", e) 
+        connection.rollback() 
+    
+    finally:
+        connection.close()
 
-def loadConfig():
-    with open('../config.json','r') as file:
-        config = json.load(file)
-        return config
-
-
-
-def connectToServer():
-    config = loadConfig()
-    server = config['server']
-    database = config['database']
-    username = config['username']
-    password = config['password']
-    connection_string = (
-        f"Driver={{ODBC Driver 18 for SQL Server}};Server={server};Database={database};Uid={username};Pwd={password};Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
-    )
-
-    retry_attempts = 3
-    for attempt in range(retry_attempts):
-        try:
-            connection = pyodbc.connect(connection_string)
-            cursor = connection.cursor()
-            cursor.execute("SELECT * FROM USERS")
-            row = cursor.fetchone()
-            while row:
-                print(row)
-                row = cursor.fetchone()
-            connection.close()
-            break
-        except pyodbc.Error as ex:
-            print(f"Attempt {attempt + 1} failed: {ex}")
-            if attempt < retry_attempts - 1:
-                time.sleep(5)  # Wait for 5 seconds before retrying
-    return connection
