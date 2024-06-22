@@ -1,14 +1,14 @@
 from connection.connection import connectToServer
+from Login.userLogin import print_start_screen
+from Tests.testUserCreation import runUserCreation
+
+
+
 
 def main():
     try:
-        connection= connectToServer()
-        cursor = connection.execute("select * from users")
-        row = cursor.fetchone()
-        while row:
-            print(row)
-            row = cursor.fetchone()
-        connection.close()
+
+        print_start_screen()
     except Exception as e:
         print(f"Failed to connect to database: {e}")
 main()
